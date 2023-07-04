@@ -1,4 +1,4 @@
-# `thrid`: Fast Thread Identifier
+# `thrid`: Fast Thread Identifier (WIP, not ready for use yet)
 
 This crate provides a very fast implementation of per-thread identifier. It is implemented generally by a small bit of inline assembly which returns a pointer to the thread control block, the thread environment block, the TLS base, or whatever the equivalent on your OS is. If we don't have an asm shim for it, we fall back to using either an OS thread ID value, or a pointer to a `thread_local!` variable (in which case we require `std`).
 
