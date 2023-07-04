@@ -18,10 +18,10 @@ libc = ["dep:libc"]
 # when executed on the same thread.
 unsound_pure_asm = []
 
-# If set, never uses an asm impl (same as under miri).
+# If set, never uses an asm impl (same as under miri). Overrides other options.
 force_no_asm = []
 
-# Enable to allow the asm to be used on weird targets.
+# Enable to allow the asm to be used on weird targets which might be broken.
 asm_on_experimental_targets = []
 
 [dependencies]
