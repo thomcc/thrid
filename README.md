@@ -1,10 +1,25 @@
 # `thrid`: Fast Thread Identifier
 
-This crate provides a very fast implementation of per-thread identifier. It is implemented generally by a small bit of inline assembly which returns a pointer to the thread control block, the thread environment block, the TLS base, or whatever the equivalent on your OS is. If we don't have an asm shim for it, we fall back to using either an OS thread ID value, or a pointer to a `thread_local!` variable.
+This crate provides a very fast implementation of per-thread identifier. It is implemented generally by a small bit of inline assembly which returns a pointer to the thread control block, the thread environment block, the TLS base, or whatever the equivalent on your OS is. If we don't have an asm shim for it, we fall back to using either an OS thread ID value, or a pointer to a `thread_local!` variable (in which case we require `std`).
 
-In most cases (e.g. in cases where we have ). This is more pronounced if used from a dynamic library (`dylib` or `cdylib` crate).
+Please file bugs if it misbehaves, it's fairly new.
 
-Please file bugs if it misbehaves.
+## Performance
+
+In most cases (e.g. in cases where we have the asm shim) it's much faster than `std::thread::current().id()` (even if that value is cached in a `thread_local`), or access to the platform thread ID.
+
+Compared to taking using a pointer to a `thread_local` this offers more consistent performance, and should never be slower. On ELF targets, access to a `thread_local` is often very fast, but that performance can drop drastically if done from within a dynamic library (dylib/cdylib crate), especially one loaded at runtime. Conversely, `thrid` is the same speed in these cases. On non-ELF targets `thrid` should be strictly faster in basically every case.
+
+I need to make new benchmarks, and run them on different targets, but here are some preliminary numbers (from `aarch64-apple-darwin`).
+
+```
+ThrId::get()            time:   [321.86 ps 322.32 ps 322.81 ps]
+thread_local! ptr       time:   [960.84 ps 962.03 ps 963.38 ps]
+#[thread_local] ptr     time:   [961.74 ps 963.61 ps 966.35 ps]
+thread::current().id()  time:   [9.6959 ns 9.7077 ns 9.7206 ns]
+pthread_self            time:   [1.9381 ns 1.9410 ns 1.9438 ns]
+pthread_getspecific     time:   [1.2926 ns 1.2950 ns 1.2975 ns]
+```
 
 ## Use-cases
 
