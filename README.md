@@ -13,13 +13,19 @@ Compared to taking using a pointer to a `thread_local` this offers more consiste
 Some benchmarks are available in `bench/bench.rs`. I need to take them on other targets, and set it up so I can take them across dylibs.
 
 ```
-thrid::ThrId::get()                    time:   [330.95 ps 331.66 ps 332.38 ps]
+# aarch64-apple-darwin, non-dylib
+`thrid::ThrId::get()`                  time:   [330.95 ps 331.66 ps 332.38 ps]
 `std::thread::current().id()` (cached) time:   [325.35 ps 326.01 ps 326.80 ps]
-pointer to `thread_local!`             time:   [977.89 ps 979.72 ps 981.81 ps]
+`thread_local!` pointer                time:   [977.89 ps 979.72 ps 981.81 ps]
 `std::thread::current().id()` (direct) time:   [9.8745 ns 9.8926 ns 9.9133 ns]
 `thread_id::get()` (external crate)    time:   [1.9789 ns 2.0166 ns 2.0610 ns]
 `libc::pthread_self()`                 time:   [1.9581 ns 1.9667 ns 1.9777 ns]
 ```
+
+Interestingly on (non-dylib) `aarch64-apple-darwin` the std threadid cached in a
+`thread_local` is very fast, much faster than expected... This seems to be
+because the linker is able to optimize the usage (in a way it can't perform with
+the thread_local pointer). Surprising.
 
 ## Use-cases
 
