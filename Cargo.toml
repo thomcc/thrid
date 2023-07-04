@@ -1,0 +1,25 @@
+[package]
+name = "thrid"
+version = "0.1.0"
+edition = "2021"
+license = "Unlicense OR MIT OR Apache-2.0"
+description = "Fast access to a per-thread Identifier"
+keywords = ["thread_id", "tid", "concurrent", "thread", "thread_local"]
+readme = "README.md"
+documentation = "https://docs.rs/thrid/"
+repository = "https://github.com/thomcc/thrid"
+categories = ["concurrency"]
+
+[features]
+default = ["unsound_pure_asm"]
+# In the fallback path on unix platforms, use the `libc` crate rather than `std`.
+libc = ["dep:libc"]
+# Mark the asm blocks as `pure`. This is somewhat dubious, as they are only pure
+# when executed on the same thread.
+unsound_pure_asm = []
+
+[dependencies]
+cfg-if = "1"
+
+[target.'cfg(unix)'.dependencies]
+libc = { version = "0.2", optional = true }
