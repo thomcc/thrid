@@ -11,7 +11,7 @@ repository = "https://github.com/thomcc/thrid"
 categories = ["concurrency"]
 
 [features]
-default = ["unsound_pure_asm"]
+default = []
 # In the fallback path on unix platforms, use the `libc` crate rather than `std`.
 libc = ["dep:libc"]
 # Mark the asm blocks as `pure`. This is somewhat dubious, as they are only pure
