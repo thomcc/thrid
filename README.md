@@ -35,7 +35,7 @@ On tested platforms it's faster than:
 
 2. Getting the [`std::thread::ThreadId`](https://doc.rust-lang.org/nightly/std/thread/struct.ThreadId.html) for the current thread using something like [`std::thread::current().id()`](https://doc.rust-lang.org/nightly/std/thread/struct.Thread.html#method.id), even if the ID is cached.
 
-    As mentioned, `ThreadId` is guaranteed never to be reused, wheras the value from `thrid::ThrId::get()` may be reused after a thread terminates. On the other hand, `std::thread::current()` can panic during thread tear-down, whereas `thrid::ThrId::get()` will not.
+    As mentioned, `std::thread::ThreadId` is guaranteed never to be reused, wheras the value from `thrid::ThrId::get()` may be reused after a thread terminates. On the other hand, `std::thread::current()` can panic during thread tear-down, whereas `thrid::ThrId::get()` will not.
 
 ## License
 
