@@ -10,15 +10,15 @@ In most cases (e.g. in cases where we have the asm shim) it's much faster than `
 
 Compared to taking using a pointer to a `thread_local` this offers more consistent performance, and should never be slower. On ELF targets, access to a `thread_local` is often very fast, but that performance can drop drastically if done from within a dynamic library (dylib/cdylib crate), especially one loaded at runtime. Conversely, `thrid` is the same speed in these cases. On non-ELF targets `thrid` should be strictly faster in basically every case.
 
-I need to make new benchmarks, and run them on different targets, but here are some preliminary numbers (from `aarch64-apple-darwin`).
+Some benchmarks are available in `bench/bench.rs`. I need to take them on other targets, and set it up so I can take them across dylibs.
 
 ```
-ThrId::get()            time:   [321.86 ps 322.32 ps 322.81 ps]
-thread_local! ptr       time:   [960.84 ps 962.03 ps 963.38 ps]
-#[thread_local] ptr     time:   [961.74 ps 963.61 ps 966.35 ps]
-pthread_getspecific     time:   [1.2926 ns 1.2950 ns 1.2975 ns]
-pthread_self            time:   [1.9381 ns 1.9410 ns 1.9438 ns]
-thread::current().id()  time:   [9.6959 ns 9.7077 ns 9.7206 ns]
+thrid::ThrId::get()                    time:   [330.95 ps 331.66 ps 332.38 ps]
+`std::thread::current().id()` (cached) time:   [325.35 ps 326.01 ps 326.80 ps]
+pointer to `thread_local!`             time:   [977.89 ps 979.72 ps 981.81 ps]
+`std::thread::current().id()` (direct) time:   [9.8745 ns 9.8926 ns 9.9133 ns]
+`thread_id::get()` (external crate)    time:   [1.9789 ns 2.0166 ns 2.0610 ns]
+`libc::pthread_self()`                 time:   [1.9581 ns 1.9667 ns 1.9777 ns]
 ```
 
 ## Use-cases

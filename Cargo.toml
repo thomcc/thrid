@@ -23,3 +23,12 @@ cfg-if = "1"
 
 [target.'cfg(unix)'.dependencies]
 libc = { version = "0.2", optional = true }
+
+[dev-dependencies]
+criterion = "0.5.1"
+thread-id = "4.1.0"
+
+[[bench]]
+name = "bench"
+path = "bench/bench.rs"
+harness = false
