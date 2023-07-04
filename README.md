@@ -16,9 +16,9 @@ I need to make new benchmarks, and run them on different targets, but here are s
 ThrId::get()            time:   [321.86 ps 322.32 ps 322.81 ps]
 thread_local! ptr       time:   [960.84 ps 962.03 ps 963.38 ps]
 #[thread_local] ptr     time:   [961.74 ps 963.61 ps 966.35 ps]
-thread::current().id()  time:   [9.6959 ns 9.7077 ns 9.7206 ns]
-pthread_self            time:   [1.9381 ns 1.9410 ns 1.9438 ns]
 pthread_getspecific     time:   [1.2926 ns 1.2950 ns 1.2975 ns]
+pthread_self            time:   [1.9381 ns 1.9410 ns 1.9438 ns]
+thread::current().id()  time:   [9.6959 ns 9.7077 ns 9.7206 ns]
 ```
 
 ## Use-cases
