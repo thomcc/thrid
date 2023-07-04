@@ -33,26 +33,34 @@ cfg_if::cfg_if! {
             unsafe { NonZeroUsize::new_unchecked(addr) }
         }
     } else if #[cfg(all(
+        // no asm cases:
         not(any(
+            // miri obviously
             miri,
-            // Anything weird or from the future
+            // we were asked not to use it.
+            feature = "force_no_asm",
+            // we're compiling for weird embedded or something from the future
             not(any(target_pointer_width = "32", target_pointer_width = "64")),
-            // 32 bit ABI on 64 bit arch (x32, arm64_32, ...)
-            all(
-                not(target_pointer_width = "64"),
-                any(target_arch = "x86_64", target_arch = "aarch64"),
-            ),
-            // 64 bit ABI on 32 bit arch (maybe someday CHERI...?)
-            all(
-                not(target_pointer_width = "32"),
-                any(target_arch = "x86", target_arch = "arm"),
+            // target with mismatched pointer size to arch size (makes it too
+            // tricky to write the asm)
+            any(
+                // 32 bit ABI on 64 bit arch (x32, arm64_32, ...)
+                all(
+                    not(target_pointer_width = "64"),
+                    any(target_arch = "x86_64", target_arch = "aarch64"),
+                ),
+                // vice versa, like (someday?) CHERI 32bit
+                all(
+                    not(target_pointer_width = "32"),
+                    any(target_arch = "x86", target_arch = "arm"),
+                ),
             ),
         )),
+        // Supported targets that should be fast.
         any(
-            // macOS x86, x86_64, aarch64.
-            all(target_os = "macos", any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64")),
-            // iOS/tvOS aarch64. Note that watchOS is pretty cursed so it's excluded.
-            all(any(target_os = "ios", target_os = "tvos"), target_arch = "aarch64"),
+            // macOS x86_64, aarch64.
+            all(target_os = "macos", any(target_arch = "x86_64", target_arch = "aarch64")),
+
             // Windows x86, x86_64, aarch64.
             all(windows, any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64")),
             // linux x86, x86_64, aarch64, but only glibc or musl (other libc's
@@ -62,7 +70,19 @@ cfg_if::cfg_if! {
                 any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64"),
                 any(target_env = "musl", target_env = "gnu"),
             ),
-            // Probably some BSDs are reasonable...
+            // TODO: Probably some BSDs are reasonable, and some even could be
+            // tested in CI...
+
+            // Rest of these are probably right but painful to test, so we
+            // require a feature.
+
+            // macOS 32 bit x86
+            all(feature = "asm_on_experimental_targets", target_os = "macos", target_arch = "x86"),
+            // iOS/tvOS aarch64 (watchOS is pretty cursed, so it's excluded even
+            // the weird target feature is on)
+            all(feature = "asm_on_experimental_targets", any(target_os = "ios", target_os = "tvos"), target_arch = "aarch64"),
+            // windows 32 bit arm. No idea how to test this.
+            all(feature = "asm_on_experimental_targets", windows, target_arch = "arm"),
         ),
     ))] {
         #[inline(always)]
@@ -80,7 +100,7 @@ cfg_if::cfg_if! {
                             options(nostack, readonly, preserves_flags),
                         );
                     } else if #[cfg(all(target_os = "macos", target_arch = "x86"))] {
-                        // As above, but with fs
+                        // As above, but with fs.
                         asm_maybe_with_pure!(
                             "mov {}, fs:0",
                             out(reg) output,

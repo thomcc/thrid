@@ -18,17 +18,26 @@ libc = ["dep:libc"]
 # when executed on the same thread.
 unsound_pure_asm = []
 
+# If set, never uses an asm impl (same as under miri).
+force_no_asm = []
+
+# Enable to allow the asm to be used on weird targets.
+asm_on_experimental_targets = []
+
 [dependencies]
 cfg-if = "1"
 
 [target.'cfg(unix)'.dependencies]
 libc = { version = "0.2", optional = true }
 
-[dev-dependencies]
-criterion = "0.5.1"
-thread-id = "4.1.0"
+# Breaks tests, resurrect later.
+# [workspace]
+# exclude = ["bench"]
+# [dev-dependencies]
+# criterion = "0.5.1"
+# thread-id = "4.1.0"
 
-[[bench]]
-name = "bench"
-path = "bench/bench.rs"
-harness = false
+# [[bench]]
+# name = "bench"
+# path = "bench/bench.rs"
+# harness = false
